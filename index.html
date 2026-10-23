@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pulau Arsir: Misi Penjaga Daerah Penyelesaian</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--sea:#0e2b3b;--sea2:#164559;--paper:#eef6f2;--grid:#cfe3dc;--ink:#12303d;--muted:#4f6b73;--hl:#f2c14e;--ok:#1b8a6b;--bad:#d9482b;--line:#9cc3b8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15384a;--grid:#1d4a5f;--ink:#e8f3ef;--muted:#a6c3c8;--line:#2f6275;--sea:#08202c;--sea2:#0e3345}}
+:root[data-theme="dark"]{--paper:#15384a;--grid:#1d4a5f;--ink:#e8f3ef;--muted:#a6c3c8;--line:#2f6275;--sea:#08202c;--sea2:#0e3345}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Bricolage Grotesque",system-ui,sans-serif;background:linear-gradient(var(--sea),var(--sea2));color:#eaf4f0;min-height:100vh;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+h1,h2,h3{margin:0;line-height:1.15}
+.title{font-size:clamp(2rem,6vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+.hatch{background:repeating-linear-gradient(135deg,var(--hl) 0 3px,transparent 3px 9px);padding:0 .15em;color:#fff;text-shadow:0 0 6px var(--sea)}
+.sub{color:#b9d4cf;margin:.4rem 0 0}
+.map{display:flex;align-items:center;gap:0;margin:18px 0;overflow-x:auto;padding-bottom:4px}
+.node{flex:1;min-width:92px;text-align:center;font-size:.8rem;color:#9fc0ba}
+.node b{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 4px;border-radius:50%;border:3px solid #3b6a7c;font-size:1.5rem;background:var(--sea)}
+.node.cur b{border-color:var(--hl);background:repeating-linear-gradient(135deg,rgba(242,193,78,.45) 0 3px,transparent 3px 8px),var(--sea)}
+.node.done b{border-color:var(--ok);background:var(--ok)}
+.node.cur{color:#fff}
+.hud{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;font-weight:600;margin-bottom:10px}
+.hud span{background:rgba(255,255,255,.08);padding:4px 12px;border-radius:99px}
+.card{background:var(--paper);color:var(--ink);border-radius:14px;padding:20px;border:2px solid var(--line);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;background-color:var(--paper)}
+.card h2{font-size:1.5rem;margin-bottom:.4rem}
+.tag{display:inline-block;background:var(--ink);color:var(--paper);font-size:.8rem;font-weight:600;padding:2px 10px;border-radius:6px;margin-bottom:8px}
+.q{font-size:1.1rem;font-weight:600;margin:6px 0 14px}
+button{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 14px;border-radius:10px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.opt.sel{border-color:var(--ink);background:repeating-linear-gradient(135deg,rgba(242,193,78,.55) 0 3px,transparent 3px 9px),var(--paper)}
+.opt.right{border-color:var(--ok);background:rgba(27,138,107,.22)}
+.opt.wrong{border-color:var(--bad);background:rgba(217,72,43,.2)}
+.btn{background:var(--hl);color:#2a2100;border:0;border-radius:10px;padding:10px 20px;font-weight:800}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink);font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.fb{margin-top:14px;padding:12px 14px;border-radius:10px;border-left:6px solid var(--line);background:rgba(255,255,255,.55);color:#12303d}
+.fb.ok{border-color:var(--ok)}.fb.no{border-color:var(--bad)}.fb.hint{border-color:var(--hl)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fb{background:rgba(0,0,0,.3);color:#e8f3ef}}
+.tfrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
+.tfrow .opt{display:inline-block;width:auto;margin:0 3px;padding:6px 12px}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.bin{min-height:120px;border:3px dashed var(--ink);border-radius:12px;padding:8px}
+.bin h3{font-size:.95rem;margin-bottom:6px}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:44px;padding:8px;border:2px solid var(--line);border-radius:12px}
+.chip{display:inline-block;margin:3px;padding:6px 12px;border-radius:8px;background:var(--ink);color:var(--paper);font-weight:600;cursor:grab;border:2px solid transparent}
+.chip.sel{border-color:var(--hl);box-shadow:0 0 0 3px var(--hl)}
+.chip.right{background:var(--ok);color:#fff}.chip.wrong{background:var(--bad);color:#fff}
+ol.ord{padding:0;list-style:none;margin:0}
+ol.ord li{display:flex;gap:8px;align-items:center;margin:6px 0;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:var(--paper)}
+ol.ord li span{flex:1}
+ol.ord li.right{border-color:var(--ok)}ol.ord li.wrong{border-color:var(--bad)}
+.mv{border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:6px;width:34px;height:34px}
+.mrow{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;margin:8px 0}
+select{font:inherit;padding:6px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.legend{margin:10px 0;padding:10px 14px;border-radius:10px;border:2px solid var(--line);background:var(--paper)}
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.badges span{background:var(--ink);color:var(--paper);border-radius:99px;padding:4px 14px;font-weight:600}
+details{margin-top:22px;background:rgba(255,255,255,.07);border-radius:12px;padding:12px 16px;color:#d4e8e3}
+summary{cursor:pointer;font-weight:800}
+details li{margin:3px 0}
+@media (max-width:560px){.bins{grid-template-columns:1fr}.mrow{grid-template-columns:1fr}.tfrow{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .35s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="title">Pulau <span class="hatch">Arsir</span></h1>
+    <p class="sub">Misi Penjaga Daerah Penyelesaian · Matematika Kelas X (Fase E) · Sistem Pertidaksamaan Linear Dua Variabel · 45 menit</p>
+  </header>
+  <nav class="map" id="map" aria-label="Peta zona"></nav>
+  <div class="hud" id="hud"></div>
+  <main id="main"></main>
+  <details>
+    <summary>Panduan Guru</summary>
+    <p><b>Alokasi waktu:</b></p>
+    <ul>
+      <li>0–2 menit: narasi dan aturan main</li>
+      <li>2–10 menit: Zona 1 · 10–19 menit: Zona 2 · 19–29 menit: Zona 3</li>
+      <li>29–42 menit: Boss Battle · 42–45 menit: refleksi dan penutup</li>
+    </ul>
+    <p><b>Miskonsepsi yang sering muncul:</b></p>
+    <ul>
+      <li>Menganggap tanda ≤ selalu berarti arsir ke bawah. Luruskan dengan titik uji.</li>
+      <li>Tertukar antara garis penuh (≤, ≥) dan putus-putus (&lt;, &gt;).</li>
+      <li>Hanya menguji satu pertidaksamaan dalam sistem (kesalahan Raka).</li>
+      <li>Salah menghitung titik potong sumbu.</li>
+    </ul>
+    <p><b>Diferensiasi:</b> siswa yang butuh bantuan memakai kertas berpetak dan petunjuk bertahap; siswa mahir mengerjakan soal bonus lalu membuat soal Boss versi sendiri.</p>
+    <p><b>Rubrik Boss Fase 3:</b> 0 = tidak menjelaskan, 1 = menyebut salah satu pertidaksamaan, 2 = memeriksa keduanya dengan perhitungan benar.</p>
+    <p><b>Refleksi penutup:</b></p>
+    <ol>
+      <li>Mengapa titik (0,0) sering dipakai sebagai titik uji, dan kapan ia tidak bisa dipakai?</li>
+      <li>Apa bedanya menguji satu pertidaksamaan dan menguji sistem?</li>
+      <li>Di zona mana kamu paling banyak kehilangan nyawa, dan apa penyebabnya?</li>
+    </ol>
+  </details>
+</div>
+<script>
+const Z=[
+{n:"Hutan Garis Batas",i:"🌲",need:70,badge:"Pemburu Titik",quest:"Menguji titik terhadap pertidaksamaan dan membedakan garis penuh (≤, ≥) dari garis putus-putus (<, >).",qs:[
+ {t:"mc",pts:50,tag:"Pilihan Ganda",q:"Titik yang memenuhi pertidaksamaan 2x + 3y ≤ 12 adalah ….",o:["(3, 3)","(2, 2)","(5, 2)","(6, 1)","(0, 5)"],a:1,h:"Substitusikan tiap titik ke 2x + 3y, lalu bandingkan dengan 12.",e:"Untuk (2, 2): 4 + 6 = 10 ≤ 12. Pilihan lain menghasilkan 15 atau 16."},
+ {t:"tf",pts:50,tag:"Benar / Salah",q:"Tentukan benar atau salah tiap pernyataan.",s:["Garis batas x − 2y > 4 digambar putus-putus.","Titik (0, 0) memenuhi 3x + 2y ≥ 6.","Garis batas x + y ≤ 5 memotong sumbu Y di (0, 5)."],a:[true,false,true],h:"Untuk pernyataan 2, hitung 3(0) + 2(0) lalu bandingkan dengan 6.",e:"Pernyataan 2 salah karena 0 ≥ 6 tidak benar. Tanda > membuat garis putus-putus, dan x = 0 pada x + y = 5 memberi y = 5."}]},
+{n:"Gurun Arsir",i:"🏜️",need:105,badge:"Penjelajah Arsir",quest:"Menentukan daerah penyelesaian satu pertidaksamaan dengan titik uji dan menafsirkan arah arsir.",qs:[
+ {t:"mck",pts:75,tag:"Pilihan Ganda Kompleks",q:"Pilih SEMUA pernyataan yang benar tentang 2x − y ≥ 4.",o:["Garis batasnya memotong sumbu X di (2, 0) dan sumbu Y di (0, −4).","Garis batasnya digambar putus-putus.","Titik (0, 0) tidak memenuhi pertidaksamaan.","Titik (3, 1) memenuhi pertidaksamaan.","Daerah penyelesaiannya memuat titik asal."],a:[0,2,3],h:"Uji titik (0, 0) dan (3, 1) pada 2x − y ≥ 4.",e:"B salah karena tandanya ≥ sehingga garis penuh. E salah karena 0 ≥ 4 tidak benar."},
+ {t:"dnd",pts:75,tag:"Drag and Drop",q:"Seret tiap pertidaksamaan ke kotak yang tepat (atau ketuk kartu, lalu ketuk kotak).",bins:["Garis penuh","Garis putus-putus"],c:["x + 2y ≤ 6","y > 3x − 1","4x − y ≥ 0","x < 5","y ≤ −2","2x + y > 8"],a:[0,1,0,1,0,1],h:"Garis penuh dipakai bila tanda memuat “sama dengan”.",e:"Penuh: x + 2y ≤ 6, 4x − y ≥ 0, y ≤ −2. Putus-putus: y > 3x − 1, x < 5, 2x + y > 8."}]},
+{n:"Lembah Irisan",i:"⛰️",need:140,badge:"Penakluk Irisan",quest:"Menentukan irisan dari sistem pertidaksamaan, menyusun langkah penyelesaian, dan mencari titik pojok.",qs:[
+ {t:"ord",pts:70,tag:"Mengurutkan",q:"Susun langkah menentukan daerah penyelesaian sistem pertidaksamaan dengan tombol ↑ ↓.",it:["Gambar garis batas tiap pertidaksamaan","Uji satu titik pada tiap pertidaksamaan","Arsir daerah yang memenuhi tiap pertidaksamaan","Tentukan irisan (daerah yang diarsir oleh semua pertidaksamaan)","Tentukan titik pojok daerah irisan"],sh:[3,0,4,2,1],h:"Garis harus ada dulu sebelum titik bisa diuji.",e:"Urutan yang benar: garis batas → titik uji → arsir → irisan → titik pojok."},
+ {t:"match",pts:70,tag:"Menjodohkan",q:"Pasangkan tiap sistem dengan daerah penyelesaiannya.",l:["x ≥ 0, y ≥ 0, x + y ≤ 4","x ≥ 0, y ≥ 0, x + 2y ≤ 6, 2x + y ≤ 6","x ≥ 1, y ≥ 1, x + y ≤ 5"],r:["Segitiga: (0,0), (4,0), (0,4)","Segiempat: (0,0), (3,0), (2,2), (0,3)","Segitiga: (1,1), (4,1), (1,4)"],a:[0,1,2],h:"Hitung titik potong garis batas dengan sumbu dan antar garis.",e:"Pada sistem 2, titik (2, 2) adalah perpotongan x + 2y = 6 dan 2x + y = 6."},
+ {t:"mc",pts:60,tag:"Pilihan Ganda",q:"Daerah penyelesaian x ≥ 0, y ≥ 0, x + y ≤ 6, x ≤ 4 memiliki titik pojok (0,0), (4,0), (4,2), (0,6). Titik berikut yang BUKAN titik pojok adalah ….",o:["(0, 0)","(4, 0)","(4, 2)","(6, 0)","(0, 6)"],a:3,h:"Periksa titik mana yang melanggar x ≤ 4.",e:"Titik (6, 0) melanggar x ≤ 4."}]},
+{n:"Benteng Feasible",i:"🏰",need:200,badge:"Penjaga Kristal Feasible",quest:"Boss Battle melawan Raja Ketidaklayakan: memodelkan masalah, menyelesaikannya, dan menganalisis kesalahan.",story:"Penjaga benteng membuat dua ramuan, A dan B. Satu botol A memerlukan 2 ons herbal dan 1 jam racik. Satu botol B memerlukan 1 ons herbal dan 2 jam racik. Persediaan herbal paling banyak 40 ons dan waktu racik paling lama 50 jam. Misalkan x = banyak botol A dan y = banyak botol B.",qs:[
+ {t:"mc",pts:100,tag:"Boss · Fase 1: Pemodelan",q:"Sistem pertidaksamaan yang tepat adalah ….",o:["2x + y ≤ 40; x + 2y ≤ 50; x ≥ 0; y ≥ 0","x + 2y ≤ 40; 2x + y ≤ 50; x ≥ 0; y ≥ 0","2x + y ≥ 40; x + 2y ≥ 50; x ≥ 0; y ≥ 0","2x + y ≤ 50; x + 2y ≤ 40; x ≥ 0; y ≥ 0"],a:0,h:"Herbal dipakai 2 ons per A dan 1 ons per B.",e:"Herbal: 2x + y ≤ 40. Waktu: x + 2y ≤ 50. Banyak botol tidak negatif."},
+ {t:"mck",pts:100,tag:"Boss · Fase 2: Penyelesaian",q:"Pilih SEMUA titik pojok daerah penyelesaian.",o:["(0, 0)","(20, 0)","(10, 20)","(0, 25)","(40, 0)","(0, 50)"],a:[0,1,2,3],h:"Titik (10, 20) berasal dari perpotongan 2x + y = 40 dan x + 2y = 50.",e:"Titik pojok: (0,0), (20,0), (10,20), (0,25). Cek (10,20): 2(10)+20 = 40 dan 10+2(20) = 50. Titik (40,0) dan (0,50) melanggar salah satu batas."},
+ {t:"mc",pts:100,tag:"Boss · Fase 3: Analisis Kesalahan",q:"Raka berkata: “Produksi 12 botol A dan 18 botol B itu layak, karena waktunya 12 + 36 = 48 jam, kurang dari 50.” Tanggapan yang tepat adalah ….",o:["Setuju, karena waktu racik tidak melebihi 50 jam.","Tidak setuju, karena kebutuhan herbal 2(12) + 18 = 42 melebihi 40 ons.","Tidak setuju, karena waktu 48 jam melebihi 50 jam.","Setuju, karena cukup memeriksa satu pertidaksamaan."],a:1,h:"Periksa kedua pertidaksamaan, bukan satu saja.",e:"Waktu terpenuhi (48 ≤ 50), tetapi herbal tidak (42 > 40). Titik harus memenuhi semua pertidaksamaan dalam sistem."},
+ {t:"mc",pts:50,bonus:1,tag:"Bonus (+50)",q:"Keuntungan botol A Rp30.000 dan botol B Rp40.000. Produksi mana yang memberi keuntungan terbesar?",o:["20 botol A, 0 botol B","0 botol A, 25 botol B","10 botol A, 20 botol B","0 botol A, 0 botol B"],a:2,h:"Hitung 30.000x + 40.000y di tiap titik pojok.",e:"(10,20) = Rp1.100.000; (0,25) = Rp1.000.000; (20,0) = Rp600.000."}]}
+];
+const L=String.fromCharCode;
+let S={view:"intro",z:0,q:0,lives:3,zp:0,total:0,badges:[],att:1,hint:false,done:false,fb:"",rec:0},A=null,selChip=null;
+const $=id=>document.getElementById(id);
+const cur=()=>Z[S.z].qs[S.q];
+function initA(q){selChip=null;
+ if(q.t=="mc")A=null;
+ else if(q.t=="mck")A=[];
+ else if(q.t=="tf")A=q.s.map(()=>null);
+ else if(q.t=="dnd")A=q.c.map(()=>-1);
+ else if(q.t=="ord")A=[...q.sh];
+ else A=q.l.map(()=>"");}
+function drawTop(){
+ $("map").innerHTML=Z.map((z,k)=>`<div class="node ${k<S.z||S.view=="final"?"done":k==S.z?"cur":""}"><b>${k<S.z||S.view=="final"?"✓":z.i}</b>Zona ${k+1}<br>${z.n}</div>`).join("");
+ $("hud").innerHTML=S.view=="intro"?"":`<span>Zona ${Math.min(S.z+1,4)}: ${Z[Math.min(S.z,3)].n}</span><span>${"❤️".repeat(S.lives)||"💔"} nyawa</span><span>⭐ Zona ${S.zp} · Total ${S.total}</span>`;}
+function render(){drawTop();const m=$("main");
+ if(S.view=="intro")m.innerHTML=`<section class="card"><h2>Kristal Feasible telah pecah</h2><p>Di Pulau Kartesia, Kristal Feasible menjaga semua keputusan tetap layak. Suatu malam kristal itu pecah dan serpihannya tersebar ke empat wilayah. Tiap wilayah dijaga aturan yang hanya bisa dilewati orang yang memahami <b>daerah penyelesaian</b>. Kamu adalah Penjaga Arsir yang harus mengumpulkan keempat serpihan.</p><p><b>Aturan:</b> tiap zona memberi 3 nyawa. Jawaban benar pada percobaan pertama memberi poin penuh, percobaan kedua setengah poin. Petunjuk memotong 10 poin. Capai poin minimum zona untuk membuka zona berikutnya.</p><div class="row"><button class="btn" onclick="startZone()">Mulai petualangan</button></div></section>`;
+ else if(S.view=="zone"){const z=Z[S.z];m.innerHTML=`<section class="card"><span class="tag">Zona ${S.z+1}</span><h2>${z.i} ${z.n}</h2><p><b>Misi utama:</b> ${z.quest}</p>${z.story?`<p>${z.story}</p>`:""}<p>Poin minimum untuk lulus: <b>${z.need}</b>. Lencana: <b>${z.badge}</b>.</p><div class="row"><button class="btn" onclick="S.view='q';S.q=0;initA(cur());render()">Masuk zona</button></div></section>`;}
+ else if(S.view=="q")drawQ();
+ else if(S.view=="end"){const z=Z[S.z],ok=S.zp>=z.need;m.innerHTML=`<section class="card"><h2>${ok?"Zona selesai! "+z.i:"Belum cukup poin"}</h2><p>Poin zona: <b>${S.zp}</b> dari minimum <b>${z.need}</b>. Nyawa tersisa: ${S.lives}.</p>${ok?`<p>Kamu mendapat lencana <b>${z.badge}</b>.</p><div class="row"><button class="btn" onclick="nextZone()">${S.z==3?"Pulihkan kristal":"Ke zona berikutnya"}</button></div>`:`<p>Tinjau lagi penjelasan di tiap soal, lalu ulangi zona ini dengan 3 nyawa baru.</p><div class="row"><button class="btn" onclick="retry()">Ulangi zona</button></div>`}</section>`;}
+ else m.innerHTML=`<section class="card"><h2>👑 Kristal Feasible pulih!</h2><p>Raja Ketidaklayakan kalah. Total poin kamu: <b>${S.total}</b>.</p><div class="badges">${S.badges.map(b=>`<span>🏅 ${b}</span>`).join("")}</div><p>Jawab tiga pertanyaan refleksi pada bagian Panduan Guru di bawah, lalu bagikan jawabanmu ke kelas.</p><div class="row"><button class="btn ghost" onclick="restart()">Main lagi</button></div></section>`;}
+function startZone(){S.view="zone";S.lives=3;S.zp=0;render();}
+function nextZone(){S.total+=S.zp;S.badges.push(Z[S.z].badge);if(S.z==3){S.view="final";}else{S.z++;S.view="zone";S.lives=3;S.zp=0;}render();window.scrollTo(0,0);}
+function retry(){S.lives=3;S.zp=0;S.q=0;S.view="zone";render();}
+function restart(){S={view:"intro",z:0,q:0,lives:3,zp:0,total:0,badges:[],att:1,hint:false,done:false,fb:"",rec:0};render();}
+function drawQ(){const q=cur();let h=`<section class="card"><span class="tag">${q.tag} · soal ${S.q+1}/${Z[S.z].qs.length}</span><div class="q">${q.q}</div>`;
+ h+=body(q);
+ h+=`<div class="row">${S.done?`<button class="btn" onclick="next()">Lanjut</button>`:`<button class="btn" onclick="submit()" ${ready(q)?"":"disabled"}>Periksa jawaban</button><button class="btn ghost" onclick="hint()">Petunjuk (−10)</button>`}</div>${S.fb}</section>`;
+ $("main").innerHTML=h;}
+function ready(q){if(q.t=="mc")return A!==null;if(q.t=="mck")return A.length>0;if(q.t=="tf")return A.every(x=>x!==null);if(q.t=="dnd")return A.every(x=>x>=0);if(q.t=="match")return A.every(x=>x!=="");return true;}
+function body(q){const d=S.done;let h="";
+ if(q.t=="mc"||q.t=="mck")q.o.forEach((o,i)=>{const sel=q.t=="mc"?A===i:A.includes(i);const ans=q.t=="mc"?q.a===i:q.a.includes(i);let c="opt"+(sel?" sel":"");if(d){if(ans)c="opt right";else if(sel)c="opt wrong";}h+=`<button class="${c}" onclick="pick(${i})" ${d?"disabled":""}><b>${L(65+i)}.</b> ${o}</button>`;});
+ if(q.t=="tf")q.s.forEach((s,i)=>{const r=(v)=>{let c="opt"+(A[i]===v?" sel":"");if(d&&q.a[i]===v)c="opt right";else if(d&&A[i]===v)c="opt wrong";return c;};h+=`<div class="tfrow"><span>${i+1}. ${s}</span><span><button class="${r(true)}" onclick="tf(${i},true)" ${d?"disabled":""}>Benar</button><button class="${r(false)}" onclick="tf(${i},false)" ${d?"disabled":""}>Salah</button></span></div>`;});
+ if(q.t=="dnd"){const chip=i=>{let c="chip"+(selChip===i?" sel":"");if(d)c+=A[i]===q.a[i]?" right":" wrong";return `<span class="${c}" draggable="${!d}" ondragstart="event.dataTransfer.setData('t',${i})" onclick="chipClick(${i})">${q.c[i]}</span>`;};
+  h+=`<div class="pool" ondragover="event.preventDefault()" ondrop="drop(event,-1)" onclick="binClick(-1)">${q.c.map((_,i)=>A[i]<0?chip(i):"").join("")||"<i>Semua kartu sudah ditempatkan</i>"}</div><div class="bins">${q.bins.map((b,k)=>`<div class="bin" ondragover="event.preventDefault()" ondrop="drop(event,${k})" onclick="binClick(${k})"><h3>${b}</h3>${q.c.map((_,i)=>A[i]===k?chip(i):"").join("")}</div>`).join("")}</div>`;}
+ if(q.t=="ord"){h+=`<ol class="ord">${A.map((k,p)=>`<li class="${d?(k===p?"right":"wrong"):""}"><span>${q.it[k]}</span><button class="mv" aria-label="Naik" onclick="mv(${p},-1)" ${d?"disabled":""}>↑</button><button class="mv" aria-label="Turun" onclick="mv(${p},1)" ${d?"disabled":""}>↓</button></li>`).join("")}</ol>`;}
+ if(q.t=="match"){h+=`<div class="legend">${q.r.map((r,i)=>`<div><b>${L(65+i)}.</b> ${r}</div>`).join("")}</div>`;q.l.forEach((l,i)=>{h+=`<div class="mrow"><span>${i+1}. ${l}</span><select onchange="mt(${i},this.value)" ${d?"disabled":""}><option value="">Pilih</option>${q.r.map((_,k)=>`<option value="${k}" ${A[i]===String(k)||A[i]===k?"selected":""}>${L(65+k)}</option>`).join("")}</select></div>`;});}
+ return h;}
+function pick(i){if(S.done)return;const q=cur();if(q.t=="mc")A=i;else A=A.includes(i)?A.filter(x=>x!=i):[...A,i];drawQ();}
+function tf(i,v){if(S.done)return;A[i]=v;drawQ();}
+function chipClick(i){if(S.done)return;event.stopPropagation();selChip=selChip===i?null:i;drawQ();}
+function binClick(k){if(S.done||selChip===null)return;A[selChip]=k;selChip=null;drawQ();}
+function drop(e,k){e.preventDefault();e.stopPropagation();if(S.done)return;A[+e.dataTransfer.getData("t")]=k;selChip=null;drawQ();}
+function mv(p,d){const n=p+d;if(n<0||n>=A.length)return;[A[p],A[n]]=[A[n],A[p]];drawQ();}
+function mt(i,v){A[i]=v;drawQ();}
+function check(q){if(q.t=="mc")return A===q.a;if(q.t=="mck")return A.length==q.a.length&&q.a.every(x=>A.includes(x));if(q.t=="tf")return A.every((x,i)=>x===q.a[i]);if(q.t=="dnd")return A.every((x,i)=>x===q.a[i]);if(q.t=="ord")return A.every((x,i)=>x===i);return A.every((x,i)=>+x===q.a[i]);}
+function hint(){if(S.done)return;S.hint=true;S.fb=`<div class="fb hint">💡 ${cur().h}</div>`;drawQ();}
+function submit(){const q=cur();if(S.done||!ready(q))return;
+ if(check(q)){let p=Math.round(q.pts*(S.att==1?1:.5))-(S.hint?10:0);p=Math.max(p,0);S.zp+=p;S.done=true;S.fb=`<div class="fb ok"><b>Tepat! +${p} poin.</b> ${q.e}</div>`;}
+ else{S.lives--;S.att++;
+  if(S.att>2||S.lives<=0){S.done=true;let extra="";if(S.lives<=0){S.lives=1;extra=" <b>Pos Pemulihan:</b> nyawa habis, kamu pulih dengan 1 nyawa. Baca penjelasan ini dengan teliti.";}S.fb=`<div class="fb no"><b>Belum tepat.</b> ${q.e}${extra}</div>`;}
+  else{S.fb=`<div class="fb no"><b>Belum tepat, nyawa −1.</b> Coba sekali lagi (poin menjadi setengah).</div>`;}}
+ drawQ();drawTop();}
+function next(){S.q++;S.att=1;S.hint=false;S.done=false;S.fb="";if(S.q>=Z[S.z].qs.length){S.view="end";}else initA(cur());render();window.scrollTo(0,0);}
+render();
+</script>
+</body>
+</html>
